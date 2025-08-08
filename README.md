@@ -1,6 +1,6 @@
 # BvP solution for (py′)′ + qy = 0 type ODE
  
-Problem statement
+### Problem statement:
 
 Solving Boundary value Problem for given 
 
