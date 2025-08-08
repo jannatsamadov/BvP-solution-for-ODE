@@ -1,4 +1,4 @@
-# BvP solution for (py′)′ + qy = 0 type ODE
+# BvP solution for (py′)′ + qy = 0 type ODE (not done yet)
  
 ### Problem statement:
 
