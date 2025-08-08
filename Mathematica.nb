@@ -1,0 +1,53 @@
+(*Parameters for calculation*)
+beta = 0.1;
+g = 0.9;
+alpha = 0.5;
+l = 0.9;
+Delta = 0.3;
+sigma = 1;
+k = 1;
+Infpoint = 60; 
+
+(*Define xi function*)
+xi[tau_, Omega_] := Delta*Tanh[tau] + Omega
+
+(*Define betaA*)
+betaA[tau_, Omega_] := alpha + beta - 1 - xi[tau, Omega]^2;
+
+(*Define betaZ*)
+betaZ[tau_, Omega_] := 
+  beta + 2*alpha + 
+   2*alpha^2*(xi[tau, Omega]^4 + 2*g*xi[tau, Omega]^3 + 
+       2*g^2*xi[tau, Omega]^2 - 5*xi[tau, Omega]^2 - 
+       6*g*xi[tau, Omega] + 
+       3)/((xi[tau, Omega]^2 - 1)*(xi[tau, Omega]^4 - 
+         6*xi[tau, Omega]^2 - 4*g*xi[tau, Omega] + 3));
+
+(*Define P*)
+P[tau_, Omega_] = 
+  betaA[tau, Omega]*
+   betaZ[tau, Omega]/((1 - l)*betaZ[tau, Omega] + l*betaA[tau, Omega]);
+
+(*Define Q*)
+Q[tau_, Omega_] := betaA[tau, Omega]*k^2/sigma^2
+
+(*Main ode for calculation*)
+D[P[tau, Omega]*D[y[tau, Omega], tau], tau] - Q[tau, Omega]*y[tau] == 
+  0;
+
+(*Lambda funksiyası*)
+lambda[tau_, Omega_] := Sqrt[Q[tau, Omega]/P[tau, Omega]]
+
+(*y funksiyasının sərhəd dəyərləri*)
+yMinus[tau_, Omega_] := 
+ Limit[Exp[lambda[tau, Omega]*tau], tau -> -Infpoint]
+yPlus[tau_, Omega_] := 
+ Limit[Exp[-lambda[tau, Omega]*tau], tau -> Infpoint]
+
+(*y' funksiyasının sərhəd dəyərləri P.S bu kodu optimizasiya edib \
+determinant daxilində y minus və yplus yazdıqda funksiyaların ədədi \
+qiymətini götürür ve buna gore dy 0 olur*)
+DyMinus[tau_, Omega_] := 
+ Limit[D[Exp[lambda[tau, Omega]*tau], tau], tau -> -Infpoint]
+DyPlus[tau_, Omega_] := 
+ Limit[D[Exp[-lambda[tau, Omega]*tau], tau], tau -> Infpoint]
