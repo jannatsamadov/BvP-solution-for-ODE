@@ -1,4 +1,4 @@
-# BvP-solution-for-ODE
+# BvP-solution-for-ODE (py′)′ + qy = 0
 
  
 Problem statement
