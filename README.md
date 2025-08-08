@@ -2,7 +2,7 @@
  
 Problem statement
 
-Solving Boundary value Peroblem for given 
+Solving Boundary value Problem for given 
 
 
 $$
