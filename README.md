@@ -99,6 +99,6 @@ $$-\lambda_+= -\sqrt{\frac{Q(tau \to +\infty)}{P(tau \to +\infty)}},$$
 
 These conditions define the boundary conditions required for solving the equation.
 
-
+---
 The primary question of this problem is to investigate the existence of the function $y(τ)$ satisfying the given boundary conditions for values of $Ω_A$ within the complex space. The function $y(τ)$itself is complex-valued. For $Ω_A$, the complex numbers range with real part from –1 to +1 and imaginary part from 0 to 1. For those $Ω_A$ values for which a solution $y(τ)$ exists, one must also construct the plot of y versus τ.
 
