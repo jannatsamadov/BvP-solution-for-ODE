@@ -6,33 +6,33 @@ This project numerically solves an Ordinary Differential Equation (ODE) system f
 
 The script solves a system of second-order differential equations using complex variables. The governing equation is:
 
-$$ P y'' + P' y' - Q y = 0 \implies y'' = \frac{Q y - P' y'}{P} $$
+$$P y'' + P' y' - Q y = 0 \implies y'' = \frac{Q y - P' y'}{P}$$
 
 Where $y(\tau)$ is a complex function and the prime denotes the derivative with respect to $\tau$. The functions $P(\tau)$ and $Q(\tau)$ depend on the physical parameters.
 
 ### 1. Variables and Flow Parameters
 
 **Background variable $\xi$ :**
-$$ \xi(\tau, \Omega_A) = \Delta \tanh(\tau) + \Omega_A $$
+$$\xi(\tau, \Omega_A) = \Delta \tanh(\tau) + \Omega_A$$
 
 **Derivate of $\xi$ :**
-$$ \frac{d\xi}{d\tau} = \Delta \left(1 - \tanh^2(\tau)\right) $$
+$$\frac{d\xi}{d\tau} = \Delta \left(1 - \tanh^2(\tau)\right)$$
 
 ### 2. Physical Intermediate Functions
 
 **Alfvén speed parameter $\beta_A$ :**
-$$ \beta_A(\xi) = \alpha + \beta - 1 - \xi^2 $$
+$$\beta_A(\xi) = \alpha + \beta - 1 - \xi^2$$
 
 **Slow/Fast sound speed parameter $\beta_Z$ :**
-$$ \beta_Z(\xi) = \beta + 2\alpha + \frac{2\alpha^2 \left(\xi^4 + 2g\xi^3 + 2g^2\xi^2 - 5\xi^2 - 6g\xi + 3\right)}{(\xi^2 - 1)(\xi^4 - 6\xi^2 - 4g\xi + 3)} $$
+$$\beta_Z(\xi) = \beta + 2\alpha + \frac{2\alpha^2 \left(\xi^4 + 2g\xi^3 + 2g^2\xi^2 - 5\xi^2 - 6g\xi + 3\right)}{(\xi^2 - 1)(\xi^4 - 6\xi^2 - 4g\xi + 3)}$$
 
 ### 3. Output Coefficients $P$ and $Q$
 
 **Coefficient $P(\tau, \Omega_A)$ :**
-$$ P(\tau) = \frac{\beta_A \beta_Z}{(1 - l)\beta_Z + l\beta_A} $$
+$$P(\tau) = \frac{\beta_A \beta_Z}{(1 - l)\beta_Z + l\beta_A}$$
 
 **Coefficient $Q(\tau, \Omega_A)$ :**
-$$ Q(\tau) = k^2 \beta_A $$
+$$Q(\tau) = k^2 \beta_A$$
 
 *(Note: The system explicitly computes the analytical derivatives $\frac{d\beta_A}{d\tau}$, $\frac{d\beta_Z}{d\tau}$, and $\frac{dP}{d\tau}$ to evaluate the $y''$ integration step. Safeguards of `1e-12` are applied to avoid singularities at boundary points).*
 
@@ -43,13 +43,13 @@ At the boundaries where $\tau \to \pm \infty$:
 - The components $P$ and $Q$ approach asymptotic ranges $P_{\pm}, Q_{\pm}$.
 
 The asymptotic roots $\lambda$ are extracted using:
-$$ \lambda_{\pm} = \sqrt{\frac{Q(\xi_{\pm})}{P(\xi_{\pm})}} $$
+$$\lambda_{\pm} = \sqrt{\frac{Q(\xi_{\pm})}{P(\xi_{\pm})}}$$
 
 The initial conditions assume an incoming wave. At $\tau = -t_0$:
-$$ z_0 = [y_r = 1.0, y_i = 0.0, y'_r = \text{Re}(\lambda_-), y'_i = \text{Im}(\lambda_-)] $$
+$$z_0 = [y_r = 1.0, y_i = 0.0, y'_r = \text{Re}(\lambda_-), y'_i = \text{Im}(\lambda_-)]$$
 
 The target is to establish a match at the other boundary $t_0$, computing the numerical "**mismatch**" evaluated as:
-$$ \text{Mismatch} = | y'(+t_0) + \lambda_+ y(+t_0) | $$
+$$\text{Mismatch} = | y'(+t_0) + \lambda_+ y(+t_0) |$$
 
 ---
 
