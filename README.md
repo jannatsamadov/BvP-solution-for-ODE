@@ -53,76 +53,34 @@ $$ \text{Mismatch} = | y'(+t_0) + \lambda_+ y(+t_0) | $$
 
 ---
 
-## Execution Flowchart
-
-The following flowchart outlines the logic execution of `Main.py`.
+## Execution Architecture & Logic
 
 ```mermaid
 flowchart TD
-    A[Start: Define Constants & Limits] --> B[Generate Complex Grid for Omega_A]
-    B --> C[Randomly Sample 100 Grid Points]
-    C --> D[Initialize Mismatch & Results Iterators]
-    
-    D --> E{Loop over ODE Solvers: RK45, DOP853}
-    E --> F{Loop over Sampled Omega_A Points}
-    
-    F --> G["Compute limits & asymptotic root lambda_minus"]
-    G --> H["Set up initial conditions (z0)"]
-    
-    H --> I{Are initial conditions finite?}
-    I -- "No" --> F
-    I -- "Yes" --> J["Run solver: scipy.integrate.solve_ivp"]
-    
-    J --> K{Did solver succeed?}
-    K -- "No" --> F
-    K -- "Yes" --> L["Evaluate mismatch at right boundary"]
-    L --> M["Store mismatch and result array"]
-    M --> F
-    
-    F -- "All Omega_A Processed" --> E
-    
-    E -- "All Methods Processed" --> N["Save 'Sparse Heatmap of Mismatch' to plots/"]
-    N --> O["Sort results to find 'Top 5' smallest mismatches"]
-    
-    O --> P["Calculate Numerical vs Analytical residuals for Top 5"]
-    
-    P --> Q{Loop over Top 5 Results}
-    Q --> R["Generate & Save: 3D y(tau) path to plots/"]
-    R --> S["Generate & Save: Im(y) vs tau to plots/"]
-    S --> T["Generate & Save: Num vs Analytic Differences to plots/"]
-    T --> Q
-    
-    Q -- "Completed plotting Top 5" --> U[End Application]
-```
-
-### Flowchart Step Descriptions
-
-| Step Code | Step Name | Detailed Explanation |
-| :---: | :--- | :--- |
-| **A - D** | Initialization phase | Defines theoretical limits, generates a complex 2D grid for $\Omega_A$, and selects 100 random coordinates to save computation time. Arrays for tracking mismatches are prepared. |
-| **E - F** | Iteration Controls | Nested loops iterating first through the chosen ODE solver algorithms (`RK45`, `DOP853`), and then through each of the randomly sampled $\Omega_A$ parameter values. |
-| **G - I** | Mathematical Limits & $z_0$ Check | Computes asymptotic limits ($\lambda_-$) at boundary limit $\tau = -t_0$ to form the initial conditions vector ($z_0$). Validates that $z_0$ avoids mathematical singularities (division by zeros) before proceeding. |
-| **J** | ODE Integration (`solve_ivp`) | Main processing step. Integrates the second-order system mapped as a system of first-order initial value problems across domain $\tau \in [-t_0, t_0]$. |
-| **K - M** | Output Verification | Verifies integration completion. If successful, compares the solver's boundary value output with asymptotic roots to compute the numerical "mismatch" (total error). |
-| **N** | Save Global Heatmap | Plots all tested $\Omega_A$ instances on a log scaled 2D heatmap relative to their mismatch. Output is saved automatically as `Sparse_Heatmap_Mismatch.png`. |
-| **O - P** | Select Top Matches | Analyzes result history to isolate the 5 specific $\Omega_A$ setups yielding the mathematically lowest total error. |
-| **Q - T** | Plot Export Loop | For each of the "Top 5" hits, three visual charts (3D coordinate path trace, Imaginary trace mapping, analytical error mapping) are saved directly into the `plots/` folder as `.png` images without popping up on the screen. |
-| **U** | End Application | System memory operations are complete and execution terminates. |
-
-```mermaid
-flowchart TD
-    A["Start: User selects mode"] --> B{"Which mode?"}
+    A["Start: User selects sweep mode"] --> B{"Which mode?"}
     B -->|"K-Sweep"| C["Delta fixed, K varies"]
     B -->|"Delta-Sweep"| D["K fixed, Delta varies"]
-    C --> E["Calculate 100x100 grid (first Delta, first K)"]
+    C --> E["Calculate 100x100 complex grid of Omega_A"]
     D --> E
-    E --> F["Phase Vortex Map is generated, topological roots found"]
-    F --> G["Roots sorted: Furthest from 0 = Mode 0"]
-    G --> H["For each root: ASK USER"]
-    H -->|"Compute"| I["Precise root found with scipy.root"]
-    H -->|"Skip"| J["Skip to next root"]
-    I --> K["List of confirmed roots"]
-    K --> L["Sweep loop begins"]
-    L --> M["At each step: Track roots with Continuation Method"]
-    M --> N["Results saved to data/ folder"]
+    E --> F["Evaluate Wronskian Mismatch via RK45 Integration"]
+    F --> G["Compute Phase Vortex Map (Cauchy's Argument Principle)"]
+    G --> H["Extract true topological roots (Winding number != 0)"]
+    H --> I["Sort roots: Furthest from origin = Mode 0"]
+    I --> J["For each root: ASK USER"]
+    J -->|"Compute"| K["Precise root found using scipy.root"]
+    J -->|"Skip"| L["Skip to next root"]
+    K --> M["List of confirmed physical eigenmodes"]
+    M --> N["Parametric Sweep Loop Begins"]
+    N --> O["At each step: Track root evolution via Continuation Method"]
+    O --> P["Results (CSV & npz) saved to data/ folder"]
 ```
+
+### Technical Implementation Details
+
+| Component | Mathematical / Technical Method | Explanation |
+| :--- | :--- | :--- |
+| **ODE Integration** | `scipy.integrate.solve_ivp` (**RK45**) | The system integrates the differential equations from the boundaries $\tau = \pm t_0$ inward to the center $\tau=0$ using the explicit Runge-Kutta method of order 5(4). |
+| **Mismatch Evaluation** | **Wronskian Mismatch at $\tau=0$** | To verify a global solution, the left-side and right-side integration results are compared at the origin. The "mismatch" is computed as the absolute difference of their values and derivatives: $\mid y_{left}(0) - y_{right}(0) \mid + \mid y'_{left}(0) - y'_{right}(0) \mid$. |
+| **Topological Filter** | **Phase Vortex (Cauchy's Argument Principle)** | The grid generates a map of complex phases. Physical discrete eigenmodes correspond to topological phase vortices (where the phase wraps by $2\pi$ around a point). Continuous spectrum branch cuts do not form vortices. This mathematical property guarantees the algorithm only selects true physical roots. |
+| **Exact Root Finding** | `scipy.root` (**hybr / MINPACK**) | Once a localized phase vortex is found, the system refines the complex guess using the Modified Powell's method (`hybr`) to pinpoint the exact root where mismatch equals zero. |
+| **Parametric Sweep** | **Continuation Method** | During the sweep over $K$ or $\Delta$, the algorithm uses the precise root from the previous step as the initial guess for the next step. This allows rapid tracking of the physical mode's evolution without regenerating the heavy 100x100 grid. |
