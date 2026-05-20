@@ -43,10 +43,10 @@ At the boundaries where $\tau \to \pm \infty$:
 - The components $P$ and $Q$ approach asymptotic ranges $P_{\pm}, Q_{\pm}$.
 
 The asymptotic roots $\lambda$ are extracted using:
-$$\lambda_{\pm} = \sqrt{\frac{Q(\xi_{\pm})}{P(\xi_{\pm})}}$$
+$$\lambda_{\pm} =\displaystyle \sqrt{\frac{Q(\xi_{\pm})}{P(\xi_{\pm})}}$$
 
 The initial conditions assume an incoming wave. At $\tau = -t_0$:
-$$z_0 = [y_r = 1.0, y_i = 0.0, y'_r = \text{Re}(\lambda_-), y'_i = \text{Im}(\lambda_-)]$$
+$$z_0 = y_r = 1.0, y_i = 0.0, y'_r = \text{Re}(\lambda_-), y'_i = \text{Im}(\lambda_-)$$
 
 The target is to establish a match at the other boundary $t_0$, computing the numerical "**mismatch**" evaluated as:
 $$\text{Mismatch} = | y'(+t_0) + \lambda_+ y(+t_0) |$$
